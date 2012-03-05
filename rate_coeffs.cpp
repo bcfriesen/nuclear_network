@@ -1,4 +1,5 @@
 #include <math.h>
+#include "rate_coeffs.hpp"
 
 /* The subscripts on these rate coefficients are hard-coded for the isotopes
  * in the CNO cycle, as defined in my notes. This is a terrible way to label
@@ -11,20 +12,63 @@
 // are temperature-independent.
 
 // i, j = starting products. T = temperature (K)
+
+/* In my notes I started all matrix/vector elements at 1, not 0, so the values
+ * here will be universally lower by 1. */
 double lambda_ij (int i, int j, double T) {
   double lambda_ij;
-/*  if (i == 7 && j == 13) {
-    lambda_ij = lambda_N15_P_G_O16(T);
-  } */
+  if        (i == 11 && j == 12) {
+    lambda_ij = lambda_O18_P_A_N15(T);
+  } else if (i == 1 && j == 12) {
+    lambda_ij = lambda_C12_P_G_N13(T);
+  } else if (i == 3 && j == 12) {
+    lambda_ij = lambda_C13_P_G_N14(T);
+  } else if (i == 4 && j == 12) {
+    lambda_ij = lambda_N14_P_G_O15(T);
+  } else if (i == 7 && j == 12) {
+    lambda_ij = lambda_O16_P_G_F17(T);
+  } else {
+    lambda_ij = 0.0;
+  }
   return lambda_ij;
 }
 
 /* same, except an extra argument to distinguish a few reactions which have
  * the same starting products but different final products */
-double lambda_ij (int i, int j, double T, bool product) {
+double lambda_ij (int i, int j, double T, char product) {
+  double lambda_ij;
+  if        (i == 6 && j == 12 && product == 'a') {
+    lambda_ij = lambda_N15_P_A_C12(T);
+  } else if (i == 6 && j == 12 && product == 'g') {
+    lambda_ij = lambda_N15_P_G_O16(T);
+  } else if (i == 9 && j == 12 && product == 'a') {
+    lambda_ij = lambda_O17_P_A_N14(T);
+  } else if (i == 9 && j == 12 && product == 'g') {
+    lambda_ij = lambda_O17_P_G_F18(T);
+  } else {
+    lambda_ij = 0.0;
+  }
+  return lambda_ij;
 }
 
-// lambda_{7, 13, alpha}
+// beta-decay reactions aren't 2 body and so only require 1 argument
+double lambda_ij (int i) {
+  double lambda_ij;
+  if        (i == 2) {
+    lambda_ij = lambda_N13_e_nu();
+  } else if (i == 5) {
+    lambda_ij = lambda_O15_e_nu();
+  } else if (i == 8) {
+    lambda_ij = lambda_F17_e_nu();
+  } else if (i == 10) {
+    lambda_ij = lambda_F18_e_nu();
+  } else {
+    lambda_ij = 0.0;
+  }
+  return lambda_ij;
+}
+
+// lambda_{6, 12, alpha}
 double lambda_N15_P_A_C12 (double T) {
   // TODO: figure what this stupid fudge factor is
   double T9 = T / 1.0e+09;
@@ -41,7 +85,7 @@ double lambda_N15_P_A_C12 (double T) {
   return lambda;
 }
 
-// lambda_{10, 13, alpha}
+// lambda_{9, 12, alpha}
 double lambda_O17_P_A_N14 (double T) {
   double T9 = T / 1.0e+09;
   // TODO: check out the weird message in CF88 about fudge2
@@ -57,7 +101,7 @@ double lambda_O17_P_A_N14 (double T) {
   return lambda;
 }
 
-// lambda_{12, 13}
+// lambda_{11, 12}
 double lambda_O18_P_A_N15 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -70,7 +114,7 @@ double lambda_O18_P_A_N15 (double T) {
   return lambda;
 }
 
-// lambda_{2, 13}
+// lambda_{1, 12}
 double lambda_C12_P_G_N13 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -82,7 +126,7 @@ double lambda_C12_P_G_N13 (double T) {
   return lambda;
 }
 
-// lambda_{4, 13}
+// lambda_{3, 12}
 double lambda_C13_P_G_N14 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -94,7 +138,7 @@ double lambda_C13_P_G_N14 (double T) {
   return lambda;
 }
 
-// lambda_{5, 13}
+// lambda_{4, 12}
 double lambda_N14_P_G_O15 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -107,7 +151,7 @@ double lambda_N14_P_G_O15 (double T) {
   return lambda;
 }
 
-// lambda_{7, 13, gamma}
+// lambda_{6, 12, gamma}
 double lambda_N15_P_G_O16 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -122,7 +166,7 @@ double lambda_N15_P_G_O16 (double T) {
   return lambda;
 }
 
-// lambda_{8, 13}
+// lambda_{7, 12}
 double lambda_O16_P_G_F17 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -133,7 +177,7 @@ double lambda_O16_P_G_F17 (double T) {
   return lambda;
 }
 
-// lambda_{10, 13, gamma}
+// lambda_{9, 12, gamma}
 double lambda_O17_P_G_F18 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -150,7 +194,7 @@ double lambda_O17_P_G_F18 (double T) {
   return lambda;
 }
 
-// lambda_{3 beta+}
+// lambda_{2 beta+}
 double lambda_N13_e_nu () {
   // half-life (sec)
   double t12 = 9.965 * 60.0;
@@ -172,7 +216,7 @@ double lambda_N13_e_nu () {
   return lambda;
 }
 
-// lambda_{6 beta+}
+// lambda_{5 beta+}
 double lambda_O15_e_nu () {
   double t12 = 122.24;
   double delta_t = 1.0;
@@ -180,7 +224,7 @@ double lambda_O15_e_nu () {
   return lambda;
 }
 
-// lambda_{9 beta+}
+// lambda_{8 beta+}
 double lambda_F17_e_nu () {
   double t12 = 64.49;
   double delta_t = 1.0;
@@ -188,7 +232,7 @@ double lambda_F17_e_nu () {
   return lambda;
 }
 
-// lambda_{11 beta+}
+// lambda_{10 beta+}
 double lambda_F18_e_nu () {
   double t12 = 109.771 * 60;
   double delta_t = 1.0;
