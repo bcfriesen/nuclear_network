@@ -6,7 +6,9 @@
  * but it's faster to write code this way which is helpful when a deadline
  * looms, as is the case here. */
 
-// all rates taken from Caughlan & Fowler (1988)
+// All 2-body rates taken from Caughlan & Fowler (1988)
+// All beta-decay rates taken from Wolfram|Alpha. Remember that these rates
+// are temperature-independent.
 
 // i, j = starting products. T = temperature (K)
 double lambda_ij (int i, int j, double T) {
@@ -22,6 +24,7 @@ double lambda_ij (int i, int j, double T) {
 double lambda_ij (int i, int j, double T, bool product) {
 }
 
+// lambda_{7, 13, alpha}
 double lambda_N15_P_A_C12 (double T) {
   // TODO: figure what this stupid fudge factor is
   double T9 = T / 1.0e+09;
@@ -38,6 +41,7 @@ double lambda_N15_P_A_C12 (double T) {
   return lambda;
 }
 
+// lambda_{10, 13, alpha}
 double lambda_O17_P_A_N14 (double T) {
   double T9 = T / 1.0e+09;
   // TODO: check out the weird message in CF88 about fudge2
@@ -53,6 +57,7 @@ double lambda_O17_P_A_N14 (double T) {
   return lambda;
 }
 
+// lambda_{12, 13}
 double lambda_O18_P_A_N15 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -65,6 +70,7 @@ double lambda_O18_P_A_N15 (double T) {
   return lambda;
 }
 
+// lambda_{2, 13}
 double lambda_C12_P_G_N13 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -76,6 +82,7 @@ double lambda_C12_P_G_N13 (double T) {
   return lambda;
 }
 
+// lambda_{4, 13}
 double lambda_C13_P_G_N14 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
@@ -87,7 +94,8 @@ double lambda_C13_P_G_N14 (double T) {
   return lambda;
 }
 
-double lambda_N14_P_O15 (double T) {
+// lambda_{5, 13}
+double lambda_N14_P_G_O15 (double T) {
   double T9 = T / 1.0e+09;
   double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
          T943 = pow(T9, 4.0/3.0), T953 = pow(T9, 5.0/3.0),
@@ -99,16 +107,91 @@ double lambda_N14_P_O15 (double T) {
   return lambda;
 }
 
-
-
-
+// lambda_{7, 13, gamma}
 double lambda_N15_P_G_O16 (double T) {
   double T9 = T / 1.0e+09;
+  double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
+         T943 = pow(T9, 4.0/3.0), T953 = pow(T9, 5.0/3.0),
+	 T932 = pow(T9, 3.0/2.0), T965 = pow(T9, 6.0/5.0);
   double lambda = 9.78e+08 / pow(T9, 2.0/3.0) * exp((-15.251 / pow(T9, 1.0/3.0))
   - pow(T9 / 0.450, 2.0)) * (1.0 + 0.027 * pow(T9, 1.0/3.0)
   + 0.219 * pow(T9, 2.0/3.0) + 0.042 * T9 + 6.83 * pow(T9, 4.0/3.0)
   + 3.32 * pow(T9, 5.0/3.0)) + 1.11e+04 / pow(T9, 3.0/2.0) * exp(-3.328 / T9)
   + 1.49e+04 / pow(T9, 3.0/2.0) * exp(-4.665 / T9)
   + 3.80e+06 / pow(T9, 3.0/2.0) * exp(-11.048 / T9);
+  return lambda;
+}
+
+// lambda_{8, 13}
+double lambda_O16_P_G_F17 (double T) {
+  double T9 = T / 1.0e+09;
+  double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
+         T943 = pow(T9, 4.0/3.0), T953 = pow(T9, 5.0/3.0),
+	 T932 = pow(T9, 3.0/2.0), T965 = pow(T9, 6.0/5.0);
+  double lambda = 1.50e+08 / (T923 * (1.0 + 2.13 * (1.0 - exp(-0.728 * T923))))
+  * exp(-16.692 / T913);
+  return lambda;
+}
+
+// lambda_{10, 13, gamma}
+double lambda_O17_P_G_F18 (double T) {
+  double T9 = T / 1.0e+09;
+  double T923 = pow(T9, 2.0/3.0), T913 = pow(T9, 1.0/3.0),
+         T943 = pow(T9, 4.0/3.0), T953 = pow(T9, 5.0/3.0),
+	 T932 = pow(T9, 3.0/2.0), T965 = pow(T9, 6.0/5.0);
+  double T9A = T9 / (1.0 + 2.69 * T9);
+  double T9A56 = pow(T9A, 5.0/6.0), T9A13 = pow(T9A, 1.0/3.0);
+  // TODO: figure out this fudge factor
+  double fudge = 0.5;
+  double lambda = 7.97e+07 * T9A56 / T932 * exp(-16.712 / T9A13)
+  + 1.51e+08 / T923 * exp(-16.712 / T913) * (1.0 + 0.025 * T913 - 0.051 * T923
+  - 8.82e-03 * T9) + 1.56e+05 / T9 * exp(-6.272 / T9) + fudge * 1.31e+01 / T932
+  * exp(-1.961 / T9);
+  return lambda;
+}
+
+// lambda_{3 beta+}
+double lambda_N13_e_nu () {
+  // half-life (sec)
+  double t12 = 9.965 * 60.0;
+  /* I'm not sure how to deal with the time dependence of these beta-decay
+   * rates, so I set delta_t to 1 sec. I don't know if that's right but these
+   * decays are practically instantaneous compared to the 2-body reactions so
+   * hopefully it won't screw everything up... */
+  double delta_t = 1.0;
+  /* Spontaneous decay rates have the form
+   *       N(t) = N_0 * (1/2) ^ (t/t12)
+   * where N_0 is the starting number density, t is the elapsed time and t12
+   * is the half-life. I wanted to write this in the same way I wrote all the
+   * other lambda's, that is,
+   *       N = N_0 \lambda_decay
+   * No idea if this is right though, particularly because this lambda doesn't
+   * have units of a rate. But maybe by setting delta_t = 1 sec we can sort of
+   * implicitly add a s^(-1) unit to the lambda? */
+  double lambda = pow(1.0/2.0, delta_t/t12);
+  return lambda;
+}
+
+// lambda_{6 beta+}
+double lambda_O15_e_nu () {
+  double t12 = 122.24;
+  double delta_t = 1.0;
+  double lambda = pow(1.0/2.0, delta_t/t12);
+  return lambda;
+}
+
+// lambda_{9 beta+}
+double lambda_F17_e_nu () {
+  double t12 = 64.49;
+  double delta_t = 1.0;
+  double lambda = pow(1.0/2.0, delta_t/t12);
+  return lambda;
+}
+
+// lambda_{11 beta+}
+double lambda_F18_e_nu () {
+  double t12 = 109.771 * 60;
+  double delta_t = 1.0;
+  double lambda = pow(1.0/2.0, delta_t/t12);
   return lambda;
 }
