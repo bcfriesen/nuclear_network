@@ -18,7 +18,7 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
   // J_{2, 1}
   gsl_matrix_set(jac, 2, 1, lambda_ij(1, 12, T) * gsl_vector_get(Y_i, 12));
   // J_{12, 1}
-  gsl_matrix_set(jac, 12, 1, -lambda_ij(2, 12, T) * gsl_vector_get(Y_i, 12));
+  gsl_matrix_set(jac, 12, 1, -lambda_ij(1, 12, T) * gsl_vector_get(Y_i, 12));
   // J_{2, 2}
   gsl_matrix_set(jac, 2, 2, -lambda_ij(2));
   // J_{3, 2}
@@ -42,12 +42,12 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
   // J_{0, 6}
   gsl_matrix_set(jac, 0, 6, lambda_ij(6,12,T,'a') * gsl_vector_get(Y_i, 12));
   // J_{1, 6}
-  gsl_matrix_set(jac, 1, 6, lambda_ij(6,12,T) * gsl_vector_get(Y_i, 12));
+  gsl_matrix_set(jac, 1, 6, lambda_ij(6,12,T,'a') * gsl_vector_get(Y_i, 12));
   // J_{6, 6}
   gsl_matrix_set(jac, 6, 6, -lambda_ij(6,12,T,'a') * gsl_vector_get(Y_i, 12)
                  - lambda_ij(6,12,T,'g') * gsl_vector_get(Y_i, 12));
   // J_{7, 6}
-  gsl_matrix_set(jac, 7, 6, lambda_ij(6,12,T) * gsl_vector_get(Y_i, 12));
+  gsl_matrix_set(jac, 7, 6, lambda_ij(6,12,T,'g') * gsl_vector_get(Y_i, 12));
   // J_{12, 6}
   gsl_matrix_set(jac, 12, 6, -lambda_ij(6,12,T,'a') * gsl_vector_get(Y_i, 12)
                  -  lambda_ij(6,12,T,'g') * gsl_vector_get(Y_i, 12));
@@ -64,7 +64,7 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
   // J_{0, 9}
   gsl_matrix_set(jac, 0, 9, lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 12));
   // J_{4, 9}
-  gsl_matrix_set(jac, 4, 9, lambda_ij(9,12,T) * gsl_vector_get(Y_i, 12));
+  gsl_matrix_set(jac, 4, 9, lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 12));
   // J_{9, 9}
   gsl_matrix_set(jac, 9, 9, -lambda_ij(9,12,T,'g') * gsl_vector_get(Y_i, 12)
                  -  lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 12));
@@ -86,12 +86,12 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
   // J_{12, 11}
   gsl_matrix_set(jac, 12, 11, -lambda_ij(11,12,T) * gsl_vector_get(Y_i, 12));
   // J_{0, 12}
-  gsl_matrix_set(jac, 0, 12,  lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 6)
+  gsl_matrix_set(jac, 0, 12,  lambda_ij(6,12,T,'a') * gsl_vector_get(Y_i, 6)
                  + lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 9)
                  + lambda_ij(11,12,T) * gsl_vector_get(Y_i, 11));
   // J_{1, 12}
   gsl_matrix_set(jac, 1, 12, -lambda_ij(1,12,T) * gsl_vector_get(Y_i, 1)
-                 + lambda_ij(6,12,T) * gsl_vector_get(Y_i, 6));
+                 + lambda_ij(6,12,T,'a') * gsl_vector_get(Y_i, 6));
   // J_{2, 12}
   gsl_matrix_set(jac, 2, 12, lambda_ij(1,12,T) * gsl_vector_get(Y_i, 1));
   // J_{3, 12}
@@ -99,7 +99,7 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
   // J_{4, 12}
   gsl_matrix_set(jac, 4, 12, -lambda_ij(4,12,T) * gsl_vector_get(Y_i, 4)
                  + lambda_ij(3,12,T) * gsl_vector_get(Y_i, 3)
-                 + lambda_ij(9,12,T) * gsl_vector_get(Y_i, 9));
+                 + lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 9));
   // J_{5, 12}
   gsl_matrix_set(jac, 5, 12, lambda_ij(4,12,T) * gsl_vector_get(Y_i, 4));
   // J_{6, 12}
@@ -107,7 +107,7 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
                  - lambda_ij(6,12,T,'g') * gsl_vector_get(Y_i, 6)
                  + lambda_ij(11,12,T) * gsl_vector_get(Y_i, 12));
   // J_{7, 12}
-  gsl_matrix_set(jac, 7, 12, lambda_ij(6,12,T) * gsl_vector_get(Y_i, 6)
+  gsl_matrix_set(jac, 7, 12, lambda_ij(6,12,T,'g') * gsl_vector_get(Y_i, 6)
                  - lambda_ij(7,12,T) * gsl_vector_get(Y_i, 7));
   // J_{8, 12}
   gsl_matrix_set(jac, 8, 12, lambda_ij(7,12,T) * gsl_vector_get(Y_i, 7));
@@ -117,7 +117,7 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
   // J_{10, 12}
   gsl_matrix_set(jac, 10, 12, lambda_ij(9,12,T,'g') * gsl_vector_get(Y_i, 9));
   // J_{11, 12}
-  gsl_matrix_set(jac, 11, 12, -lambda_ij(11,12,T) * gsl_vector_get(Y_i, 11));
+  gsl_matrix_set(jac, 11, 12, -lambda_ij(11,12,T) * gsl_vector_get(Y_i, 12));
   // J_{12, 12}
   gsl_matrix_set(jac, 12, 12, -lambda_ij(1,12,T) * gsl_vector_get(Y_i, 1)
                  - lambda_ij(3,12,T) * gsl_vector_get(Y_i, 3)
