@@ -1,4 +1,5 @@
 #include <math.h>
+#include <gsl/gsl_const_num.h>
 #include "rate_coeffs.hpp"
 
 /* The subscripts on these rate coefficients are hard-coded for the isotopes
@@ -8,6 +9,7 @@
  * looms, as is the case here. */
 
 // All 2-body rates taken from Caughlan & Fowler (1988)
+//
 // All beta-decay rates taken from Wolfram|Alpha. Remember that these rates
 // are temperature-independent.
 
@@ -30,7 +32,7 @@ double lambda_ij (int i, int j, double T) {
   } else {
     lambda_ij = 0.0;
   }
-  return lambda_ij;
+  return lambda_ij * GSL_CONST_NUM_AVOGADRO;
 }
 
 /* same, except an extra argument to distinguish a few reactions which have
@@ -48,7 +50,7 @@ double lambda_ij (int i, int j, double T, char product) {
   } else {
     lambda_ij = 0.0;
   }
-  return lambda_ij;
+  return lambda_ij * GSL_CONST_NUM_AVOGADRO;
 }
 
 // beta-decay reactions aren't 2 body and so only require 1 argument
@@ -65,7 +67,7 @@ double lambda_ij (int i) {
   } else {
     lambda_ij = 0.0;
   }
-  return lambda_ij;
+  return lambda_ij * GSL_CONST_NUM_AVOGADRO;
 }
 
 // lambda_{6, 12, alpha}
