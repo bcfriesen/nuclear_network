@@ -1,0 +1,7 @@
+This program calculates the time-dependent molar abundances Y_i of the 13
+isotopes involved in the CNO cycle.
+
+DEPENDENCIES
+------------
+
+1.) GNU Scientific Library
