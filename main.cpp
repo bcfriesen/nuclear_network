@@ -22,6 +22,9 @@ int main() {
   // stop time (sec)
   const double t_stop = 0.01;
 
+  FILE *file;
+  file = fopen("results.dat", "w+");
+
   // declare a bunch of variables
   gsl_vector *A_i = gsl_vector_alloc(N_ISO);
   gsl_matrix *jac = gsl_matrix_calloc(N_ISO, N_ISO);
@@ -52,8 +55,8 @@ int main() {
   gsl_vector_set(Y_i, 1, 8.3e-4);
 
   // print column headers
-  printf("%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s "
-         "%12s\n",
+  fprintf(file, "%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s "
+          "%12s" "%12s\n",
          "t_now", "He4", "C12", "N13", "C13", "N14", "O15", "N15", "O16", "F17", 
 	 "O17", "F18", "O18", "H1");
   do {
@@ -61,7 +64,7 @@ int main() {
 
     // create matrix to be inverted
     gsl_matrix_set_identity(lhs);
-    for (unsigned int i = 0; i < N_ISO; i++) {
+    for (i = 0; i < N_ISO; i++) {
       gsl_matrix_set(lhs, i, i, gsl_matrix_get(lhs, i, i) / h);
     }
     error = gsl_matrix_sub(lhs, jac);
@@ -77,8 +80,8 @@ int main() {
     gsl_vector_add(Y_i, delta);
 
     // print abundances
-    printf("%12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e "
-           "%12.6e %12.6e %12.6e %12.6e %12.6e\n",
+    fprintf(file, "%12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e "
+            "%12.6e ""%12.6e %12.6e %12.6e %12.6e %12.6e\n",
            t_now,
            gsl_vector_get(Y_i, 0)*4.0,
            gsl_vector_get(Y_i, 1)*12.0,
@@ -97,6 +100,8 @@ int main() {
 	   // move forward in time and repeat
            t_now += h;
   } while (t_now <= t_stop);
+
+  fclose(file);
 
   // de-allocate variables
   gsl_matrix_free(jac);
