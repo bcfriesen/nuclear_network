@@ -1,5 +1,10 @@
 This program calculates the time-dependent molar abundances Y_i of the 13
-isotopes involved in the CNO cycle.
+isotopes involved in the CNO cycle. It's a work in progress, and I'm still
+learning so some of it may be wrong (the beta-decay stuff in particular)...
+
+Right now it uses a 1st-order semi-implicit Euler method to perform the
+integration. This is a bad choice because it gives you no error estimate. In the
+near future I hope to implement Kaps-Rentrop(-Rosenberg?) and Bader-Deuflhard.
 
 DEPENDENCIES
 ------------
