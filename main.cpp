@@ -3,9 +3,7 @@
 #include "jacobian.hpp"
 #include "ode_rhs.hpp"
 #include "rate_coeffs.hpp"
-
-#define N_NONZERO_EL 47
-#define N_ISO 13
+#include "global.hpp"
 
 int main() {
   const double T = 15.0e+06;

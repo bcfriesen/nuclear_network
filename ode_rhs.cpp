@@ -1,8 +1,6 @@
 #include <gsl/gsl_matrix.h>
 #include "rate_coeffs.hpp"
 
-#define N_ISO 13
-
 int build_ode_rhs(gsl_vector *ode_rhs, gsl_vector *Y_i, double T) {
   gsl_vector_set(ode_rhs, 0, lambda_ij(6, 12, T, 'a') * gsl_vector_get(Y_i, 6)
                  * gsl_vector_get(Y_i, 12)

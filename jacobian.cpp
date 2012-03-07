@@ -1,9 +1,8 @@
 #include <gsl/gsl_matrix.h>
 #include "rate_coeffs.hpp"
 #include "jacobian.hpp"
+#include "global.hpp"
 
-#define N_NONZERO_EL 47
-#define N_ISO 13
 /* Create sparse Jacobian matrix. For this CNO network the matrix is 72% sparse.
  * Clearly a sparse solver would be in order here. I tried SuperLU but it's
  * impossible to use and can't do simple things like adding two matrices
