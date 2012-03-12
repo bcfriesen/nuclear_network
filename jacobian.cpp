@@ -1,15 +1,28 @@
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_errno.h>
 #include "rate_coeffs.hpp"
 #include "jacobian.hpp"
+#include "global.hpp"
 
-#define N_NONZERO_EL 47
-#define N_ISO 13
 /* Create sparse Jacobian matrix. For this CNO network the matrix is 72% sparse.
  * Clearly a sparse solver would be in order here. I tried SuperLU but it's
  * impossible to use and can't do simple things like adding two matrices
  * together. Eff that. */
 
-int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
+int jacobian (double t, const double y[], double *dfdy, double dfdt[],
+              void *params) {
+
+  double T = *(double *)params;
+  gsl_matrix_view dfdy_mat = gsl_matrix_view_array(dfdy, nvar, nvar);
+  gsl_matrix *jac = &dfdy_mat.matrix;
+
+  gsl_vector_const_view y_vec = gsl_vector_const_view_array(y, nvar);
+  const gsl_vector *Y_i = &y_vec.vector;
+
+  /* for now I'll ignore the time dependence in the beta-decay rates, in
+   * which case the whole RHS has no explicit time dependence */
+  for (unsigned int i = 0; i < nvar; ++i) { dfdt[i] = 0.0; }
+
   /* In my notes I started matrix elements at 1, not 0. So these values are
    * universally lower by 1. */
 
@@ -128,5 +141,5 @@ int create_jacobian_matrix (gsl_matrix *jac, gsl_vector *Y_i, double T) {
 	         - lambda_ij(9,12,T,'g') * gsl_vector_get(Y_i, 9)
 		 - lambda_ij(9,12,T,'a') * gsl_vector_get(Y_i, 9)
 	         - lambda_ij(11,12,T) * gsl_vector_get(Y_i, 11));
-  return 0;
+  return GSL_SUCCESS;
 }

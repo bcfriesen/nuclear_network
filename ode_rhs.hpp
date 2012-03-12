@@ -1,3 +1,1 @@
-#include <gsl/gsl_matrix.h>
-
-int build_ode_rhs(gsl_vector *, gsl_vector *, double);
+int ode_rhs(double t, const double y[], double dydt[], void *params);
