@@ -1,22 +1,23 @@
 #include <math.h>
-#include <gsl/gsl_const_num.h>
 #include "rate_coeffs.hpp"
 
-/* The subscripts on these rate coefficients are hard-coded for the isotopes
- * in the CNO cycle, as defined in my notes. This is a terrible way to label
- * them if one plans to add or remove isotopes from the network in the future,
- * but it's faster to write code this way which is helpful when a deadline
- * looms, as is the case here. */
+/* The subscripts on these rate coefficients are hard-coded for the
+ * isotopes in the CNO cycle, as defined in my notes. This is a
+ * terrible way to label them if one plans to add or remove isotopes
+ * from the network in the future, but it's faster to write code this
+ * way which is helpful when a deadline looms, as is the case here. */
 
 // All 2-body rates taken from Caughlan & Fowler (1988)
-//
-// All beta-decay rates taken from Wolfram|Alpha. Remember that these rates
-// are temperature-independent.
+
+/* All beta-decay rates taken from Wolfram|Alpha. Remember that these
+ * rates are temperature-independent. */
+
+// units for all rates: cm^3/mol
 
 // i, j = starting products. T = temperature (K)
 
-/* In my notes I started all matrix/vector elements at 1, not 0, so the values
- * here will be universally lower by 1. */
+/* In my notes I started all matrix/vector elements at 1, not 0, so
+ * the values here will be universally lower by 1. */
 double lambda_ij (int i, int j, double T) {
   double lambda_ij;
   if        (i == 11 && j == 12) {
@@ -32,11 +33,11 @@ double lambda_ij (int i, int j, double T) {
   } else {
     lambda_ij = 0.0;
   }
-  return lambda_ij * GSL_CONST_NUM_AVOGADRO;
+  return lambda_ij;
 }
 
-/* same, except an extra argument to distinguish a few reactions which have
- * the same starting products but different final products */
+/* same, except an extra argument to distinguish a few reactions which
+ * have the same starting products but different final products */
 double lambda_ij (int i, int j, double T, char product) {
   double lambda_ij;
   if        (i == 6 && j == 12 && product == 'a') {
@@ -50,7 +51,7 @@ double lambda_ij (int i, int j, double T, char product) {
   } else {
     lambda_ij = 0.0;
   }
-  return lambda_ij * GSL_CONST_NUM_AVOGADRO;
+  return lambda_ij;
 }
 
 // beta-decay reactions aren't 2 body and so only require 1 argument
@@ -67,7 +68,7 @@ double lambda_ij (int i) {
   } else {
     lambda_ij = 0.0;
   }
-  return lambda_ij * GSL_CONST_NUM_AVOGADRO;
+  return lambda_ij;
 }
 
 // lambda_{6, 12, alpha}

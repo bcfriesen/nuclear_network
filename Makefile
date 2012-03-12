@@ -1,22 +1,25 @@
-CC = gcc
+CXX = g++
 CFLAGS = -c -O3
-LD = gcc
+GSL_DIR = /home/friesen
+GSL_INC = -I $(GSL_DIR)/include
+GSL_LIB = -L $(GSL_DIR)/lib -lgsl -lgslcblas
+LD = g++
 LDFLAGS = -O3
 SOURCES = \
-          jacobian.cpp \
-	  ode_rhs.cpp \
-	  rate_coeffs.cpp \
-	  main.cpp
+	rate_coeffs.cpp \
+	ode_rhs.cpp \
+	jacobian.cpp \
+	main.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 EXECUTABLE = run
 
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
+	$(LD) $(LDFLAGS) $(GSL_LIB) $(OBJECTS) -o $@
 
-%.o: %.c
-	$(CC) $(CCFLAGS) $< -o $@
+%.o: %.cpp
+	$(CXX) $(CFLAGS) $(GSL_INC) $< -o $@
 
 clean:
 	rm -rf $(EXECUTABLE) *.o
