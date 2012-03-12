@@ -1,3 +1,2 @@
-#include <gsl/gsl_matrix.h>
-
-int create_jacobian_matrix (gsl_matrix *, gsl_vector *, double);
+int jacobian (double t, const double y[], double *dfdy, double dfdt[],
+              void *params);
