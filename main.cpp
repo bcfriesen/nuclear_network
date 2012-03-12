@@ -10,6 +10,8 @@ int main() {
   double T = 15.0e+06;
   // density (constant throughout). units: g/cm^3
   double rho = 150.0;
+  printf("%18s %12.4e\n", "TEMPERATURE:", T);
+  printf("%18s %12.4e\n", "MASS DENSITY:", rho);
   // units: g/mol
   const double molar_mass[nvar] = {4.002602, 12.0, 13.005738609, 13.00335483778,
   14.00307400478, 15.003065617, 15.00010889823, 15.99491461956, 17.002095237,
@@ -17,9 +19,12 @@ int main() {
   /* initial time step (sec). This is just an initial guess. The
    * time-stepper will fix it when it starts integrating. */
   double h = 1.0e0;
-  // initial and final times. units: sec
+  /* initial and final times. units: sec. the abundances for this problem
+   * should evolve on stellar evolution timescales. for reference,
+   * 1 Gyr ~ 3e16 sec */
   double t_now = 0.0, t_stop = 1.0e+22;
-  // absolute and relative error requirements
+  /* absolute and relative error requirements for the integrator. smaller means
+   * better precision but more computation time */
   const double eps_abs = 1.0e-8, eps_rel = 0.0;
 
   // number abundances of isotopes. units: mol/cm^3
@@ -32,7 +37,7 @@ int main() {
    * all be zero */
   double dfdt[nvar];
 
-  /* initial abundances. these are sort of arbitrary. I assume the
+  /* set initial abundances. these are sort of arbitrary. I assume the
    * environment is the core of a young star, so 99% H1 (by mass) and
    * 1% C12 (we only need a tiny bit of C12 to start the reaction) */
   for (unsigned int i = 0; i < nvar; ++i) {
