@@ -3,14 +3,18 @@
 #include "global.hpp"
 
 int ode_rhs(double t, const double y[], double dydt[], void *params) {
+  // convert C arrays to GSL vectors
   gsl_vector_view dydt_vec = gsl_vector_view_array(dydt, nvar);
   gsl_vector *ode_rhs = &dydt_vec.vector;
 
+  // same here
   gsl_vector_const_view y_vec = gsl_vector_const_view_array(y, nvar);
   const gsl_vector *Y_i = &y_vec.vector;
 
+  // get the temperature
   double T = *(double *)params;
 
+  // the RHS of each ODE
   gsl_vector_set(ode_rhs, 0, lambda_ij(6, 12, T, 'a') * gsl_vector_get(Y_i, 6)
                  * gsl_vector_get(Y_i, 12)
 		 + lambda_ij(9, 12, T, 'a') * gsl_vector_get(Y_i, 9)
@@ -91,5 +95,5 @@ int ode_rhs(double t, const double y[], double dydt[], void *params) {
 		 * gsl_vector_get(Y_i, 12)
 		 - lambda_ij(11, 12, T) * gsl_vector_get(Y_i, 11)
 		 * gsl_vector_get(Y_i, 12));
-  return 0;
+  return GSL_SUCCESS;
 }

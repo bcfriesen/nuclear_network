@@ -22,4 +22,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(CFLAGS) $(GSL_INC) $< -o $@
 
 clean:
-	rm -rf $(EXECUTABLE) *.mod *.o
+	rm -rf $(EXECUTABLE) *.o
