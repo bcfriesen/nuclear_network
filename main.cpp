@@ -33,7 +33,7 @@
 
 int main() {
   // temperature (constant throughout). units: K
-  double T = 15.0e+06;
+  double T = 25.0e+06;
   // density (constant throughout). units: g/cm^3
   double rho = 150.0;
   printf("%18s %12.4e\n", "TEMPERATURE:", T);
@@ -79,7 +79,9 @@ int main() {
 
   /* declare integration technology. All this junk is built in to the
    * GNU Scientific Library. I'm using a Bulirsch-Stoer integration
-   * method, which is a variable-order (from 5th to 15th) method
+   * method (the "bsimp" in the first line stands for "Bulirsch-Stoer
+   * implicit"; other options are "rk4" for 4th-order Runge-Kutta,
+   * etc.), which is a variable-order (from 5th to 15th) method
    * designed specifically for integrating extremely stiff systems of
    * ODEs, like nuclear networks. the benefit of using a sophisticated
    * algorithm like this is that it adjusts the time steps based on
@@ -90,8 +92,14 @@ int main() {
    * solve the equations, whereas B-S took only 29. */
   const gsl_odeiv2_step_type *step_type = gsl_odeiv2_step_bsimp;
   gsl_odeiv2_step *step = gsl_odeiv2_step_alloc(step_type, nvar);
+  // set absolute and relative error tolerances
   gsl_odeiv2_control *control = gsl_odeiv2_control_y_new(eps_abs, eps_rel);
+  // set number of ODEs to solve
   gsl_odeiv2_evolve *evolve = gsl_odeiv2_evolve_alloc(nvar);
+  /* the integrator needs to know the RHS of the ODEs (ode_rhs), the
+   * Jacobian matrix (jacobian), the number of ODEs it's going to
+   * solve (nvar), and any additional parameters (just temperature in
+   * this case) */
   gsl_odeiv2_system sys = {ode_rhs, jacobian, nvar, &T};
 
   // pointer for writing output to a file
@@ -103,7 +111,8 @@ int main() {
          "n15", "o16", "f17", "o17", "f18", "o18", "h1");
   // continue loop until we reach t_stop
   while (t_now < t_stop) {
-    // the integrator will update t_now after each time step.
+    /* integrate the equations at time t_now and take a step forward
+     * (t_now will be updated automatically) */
     int status = gsl_odeiv2_evolve_apply(evolve, control, step, &sys,
                  &t_now, t_stop, &h, y);
     // quit if there's an error
