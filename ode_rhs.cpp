@@ -2,6 +2,17 @@
 #include "rate_coeffs.hpp"
 #include "global.hpp"
 
+/* Right-hand side of each ODE, i.e., the side with all the rates and
+ * abundances multiplied together. See main.cpp for the isotope codes
+ * since I've hard-coded them here. */
+
+/* Function arguments are:
+ * t = time (independent variable)
+ * y[] = vector containing isotope abundances at time t
+ * dydt[] = RHS of each ODE
+ * params -> all parameters other than time (just temperature in
+ *           this case) */
+
 int ode_rhs(double t, const double y[], double dydt[], void *params) {
   // convert C arrays to GSL vectors
   gsl_vector_view dydt_vec = gsl_vector_view_array(dydt, nvar);

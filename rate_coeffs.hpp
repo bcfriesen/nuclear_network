@@ -1,3 +1,4 @@
+// header declaration for rate coefficients
 double lambda_N15_P_A_C12 (double);
 double lambda_O17_P_A_N14 (double);
 double lambda_O18_P_A_N15 (double);

@@ -14,10 +14,12 @@
 
 // units for all rates: cm^3/mol
 
-// i, j = starting products. T = temperature (K)
+// i, j = starting products.
+// T = temperature (K)
 
-/* In my notes I started all matrix/vector elements at 1, not 0, so
- * the values here will be universally lower by 1. */
+/* if we call lambda_ij with 3 arguments, it will interpret the 1st
+ * argument as i, the 2nd argument as j and the 3rd argument as the
+ * temperature */
 double lambda_ij (int i, int j, double T) {
   double lambda_ij;
   if        (i == 11 && j == 12) {
@@ -36,8 +38,9 @@ double lambda_ij (int i, int j, double T) {
   return lambda_ij;
 }
 
-/* same, except an extra argument to distinguish a few reactions which
- * have the same starting products but different final products */
+/* N15 and O17 can each react with H1 and release either a gamma-ray
+ * or an alpha particle. So if we call lambda_ij with 4 arguments, the
+ * 4th argument is 'a' or 'g' to distinguish 'alpha' vs 'gamma' */
 double lambda_ij (int i, int j, double T, char product) {
   double lambda_ij;
   if        (i == 6 && j == 12 && product == 'a') {
@@ -54,7 +57,8 @@ double lambda_ij (int i, int j, double T, char product) {
   return lambda_ij;
 }
 
-// beta-decay reactions aren't 2 body and so only require 1 argument
+/* beta-decay reactions aren't binary reactions and are
+ * temperature-independent and so only require 1 argument */
 double lambda_ij (int i) {
   double lambda_ij;
   if        (i == 2) {
@@ -136,8 +140,8 @@ double lambda_C13_P_G_N14 (double T) {
          T943 = pow(T9, 4.0/3.0), T953 = pow(T9, 5.0/3.0),
 	 T932 = pow(T9, 3.0/2.0), T965 = pow(T9, 6.0/5.0);
   double lambda = 8.01e+07 / T923 * exp(-13.717 / T913 - pow(T9 / 2.000, 2.0))
-  * (1.0 + 0.030 * T913 + 0.958 * T923 + 0.204 * T9 + 1.39 * T943 + 0.753 * T953)
-  + 1.21e+06 / T965 * exp(-5.701 / T9);
+  * (1.0 + 0.030 * T913 + 0.958 * T923 + 0.204 * T9 + 1.39 * T943
+  + 0.753 * T953) + 1.21e+06 / T965 * exp(-5.701 / T9);
   return lambda;
 }
 

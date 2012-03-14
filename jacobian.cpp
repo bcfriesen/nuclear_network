@@ -12,6 +12,15 @@
  * performance/memory difference between sparse and full solvers is
  * immeasurably small. */
 
+/* the arguments of this function are:
+ * t -> time (independent variable)
+ * y[] -> vector containing abundances of each isotope at time t
+ * dfdy -> Jacobian matrix dfdt -> partial derivative of RHS of each
+ *         ODE w.r.t. time
+ * params -> any arguments that the Jacobian matrix elements may need
+ *           besides the independent variable (time). In this case
+ *           the only auxiliary parameter is temperature */
+
 int jacobian (double t, const double y[], double *dfdy, double dfdt[],
               void *params) {
 
@@ -32,9 +41,6 @@ int jacobian (double t, const double y[], double *dfdy, double dfdt[],
    * difference since the rates are so insanely fast compared to the
    * 2-body rates. */
   for (unsigned int i = 0; i < nvar; ++i) { dfdt[i] = 0.0; }
-
-  /* In my notes I started matrix elements at 1, not 0. So these
-   * values are universally lower by 1. */
 
   /* the function gsl_matrix_set(mtx, i, j, val) just means "set the
    * matrix element mtx[i,j] = val". GSL matrices (and vectors) are

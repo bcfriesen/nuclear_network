@@ -5,6 +5,32 @@
 #include "rate_coeffs.hpp"
 #include "global.hpp"
 
+/* A simple CNO nuclear network solver. Thanks Dick Henry for making
+ * these projects really open ended! I probably would not have learned
+ * nearly as much about nuclear networks otherwise. */
+
+/* Because I'm pretty myopic in general I hard-wired the isotopes into
+ * the ODEs, Jacobian, etc. A better way to do this would be to create
+ * integer variables called ihe4, ic12, etc. and assign the indices to
+ * them. Then if I wanted to add more isotopes later it would be quite
+ * simple. Oh well, the deadline for this project is right around the
+ * corner. The isotope codes are:
+ *
+ * He4 =  0
+ * C12 =  1
+ * N13 =  2
+ * C13 =  3
+ * N14 =  4
+ * O15 =  5
+ * N15 =  6
+ * O16 =  7
+ * F17 =  8
+ * O17 =  9
+ * F18 = 10
+ * O18 = 11
+ * H1  = 12
+ */
+
 int main() {
   // temperature (constant throughout). units: K
   double T = 15.0e+06;
@@ -12,13 +38,14 @@ int main() {
   double rho = 150.0;
   printf("%18s %12.4e\n", "TEMPERATURE:", T);
   printf("%18s %12.4e\n", "MASS DENSITY:", rho);
-  // units: g/mol
+  /* molar masses of each isotope. used to convert from mass fraction to
+   * molar number abundance. units: g/mol */
   const double molar_mass[nvar] = {4.002602, 12.0, 13.005738609, 13.00335483778,
   14.00307400478, 15.003065617, 15.00010889823, 15.99491461956, 17.002095237,
   16.999131703, 18.000937956, 17.999161001, 1.00794};
   /* initial time step (sec). This is just an initial guess. The
    * time-stepper will fix it when it starts integrating. */
-  double h = 1.0e0;
+  double h = 1.0e-8;
   /* initial and final times. units: sec. the abundances for this problem
    * should evolve on stellar evolution timescales. for reference,
    * 1 Gyr ~ 3e16 sec */
@@ -29,7 +56,7 @@ int main() {
 
   // number abundances of isotopes. units: mol/cm^3
   double y[nvar];
-  /* jacobian matrix. the integrator needs this. fortunately it's
+  /* Jacobian matrix. the integrator needs this. fortunately it's
    * analytic so calculating it is very fast */
   double dfdy[nvar][nvar];
   /* time derivatives of the RHS. the integrator needs this. there is
@@ -52,7 +79,7 @@ int main() {
 
   /* declare integration technology. All this junk is built in to the
    * GNU Scientific Library. I'm using a Bulirsch-Stoer integration
-   * method, which is a variable-order (from 7th to 15th) method
+   * method, which is a variable-order (from 5th to 15th) method
    * designed specifically for integrating extremely stiff systems of
    * ODEs, like nuclear networks. the benefit of using a sophisticated
    * algorithm like this is that it adjusts the time steps based on
@@ -67,6 +94,7 @@ int main() {
   gsl_odeiv2_evolve *evolve = gsl_odeiv2_evolve_alloc(nvar);
   gsl_odeiv2_system sys = {ode_rhs, jacobian, nvar, &T};
 
+  // pointer for writing output to a file
   FILE *fp;
   fp = fopen("results.dat", "w");
   // print column headers
@@ -80,6 +108,13 @@ int main() {
                  &t_now, t_stop, &h, y);
     // quit if there's an error
     if (status != GSL_SUCCESS) break;
+    /* Kill an isotope if its mass fraction drops below some really
+     * small value. This helps the integrator move a little faster
+     * because otherwise it tries to resolve changes at like 1.0e-58,
+     * which is pointless. */
+    for (unsigned int i = 0; i < nvar; ++i) {
+      if (y[i] / (rho / molar_mass[i]) < 1.0e-20) y[i] = 0.0;
+    }
     // print isotope mass fractions at each time step
     fprintf(fp, "%15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e"
            " %15.4e %15.4e %15.4e %15.4e %15.4e\n",
@@ -99,9 +134,11 @@ int main() {
 	   y[12] / (rho / molar_mass[12]));
   }
 
+  // free pointers
   gsl_odeiv2_step_free(step);
   gsl_odeiv2_control_free(control);
   gsl_odeiv2_evolve_free(evolve);
+  // close file
   fclose(fp);
   return 0;
 }

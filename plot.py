@@ -22,7 +22,7 @@ plt.plot(data['tnow'], data['he4'], 'b-'  , \
 	 data['tnow'], data['h1' ], 'y--')
 plt.yscale('log')
 plt.xscale('log')
-plt.xlim(1.0e2, 1.0e+22)
+plt.xlim(1.0e-8, 1.0e+22)
 plt.ylim(1.0e-10, 1.0e+1)
 plt.legend(['He4', 'C12', 'N13', 'C13', 'N14', 'O15', 'N15', 'O16', 'F17', \
             'O17', 'F18', 'O18', 'H1'], loc = 0, prop = fontP)
