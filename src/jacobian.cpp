@@ -1,7 +1,6 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_errno.h>
 #include "rate_coeffs.hpp"
-#include "jacobian.hpp"
 #include "global.hpp"
 
 /* Create sparse Jacobian matrix. For this CNO network the matrix is

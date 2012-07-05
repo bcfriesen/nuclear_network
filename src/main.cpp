@@ -1,6 +1,5 @@
 #include <gsl/gsl_odeiv2.h>
 #include <gsl/gsl_errno.h>
-#include "jacobian.hpp"
 #include "ode_rhs.hpp"
 #include "rate_coeffs.hpp"
 #include "global.hpp"
