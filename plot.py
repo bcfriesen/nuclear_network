@@ -6,7 +6,7 @@ import pylab as plt
 fontP = FontProperties()
 fontP.set_size('small')
 
-data = csv2rec('results.dat', delimiter=' ')
+data = csv2rec('build/results.dat', delimiter=' ')
 plt.plot(data['tnow'], data['he4'], 'b-'  , \
          data['tnow'], data['c12'], 'g-'  , \
 	 data['tnow'], data['n13'], 'r-'  , \

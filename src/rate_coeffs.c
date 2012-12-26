@@ -1,5 +1,5 @@
 #include <math.h>
-#include "rate_coeffs.hpp"
+#include "rate_coeffs.h"
 
 /* The subscripts on these rate coefficients are hard-coded for the
  * isotopes in the CNO cycle, as defined in my notes. This is a
@@ -20,7 +20,7 @@
 /* if we call lambda_ij with 3 arguments, it will interpret the 1st
  * argument as i, the 2nd argument as j and the 3rd argument as the
  * temperature */
-double lambda_ij (int i, int j, double T) {
+double lambda_ijT (int i, int j, double T) {
   double lambda_ij;
   if        (i == 11 && j == 12) {
     lambda_ij = lambda_O18_P_A_N15(T);
@@ -41,7 +41,7 @@ double lambda_ij (int i, int j, double T) {
 /* N15 and O17 can each react with H1 and release either a gamma-ray
  * or an alpha particle. So if we call lambda_ij with 4 arguments, the
  * 4th argument is 'a' or 'g' to distinguish 'alpha' vs 'gamma' */
-double lambda_ij (int i, int j, double T, char product) {
+double lambda_ijT_avg (int i, int j, double T, char product) {
   double lambda_ij;
   if        (i == 6 && j == 12 && product == 'a') {
     lambda_ij = lambda_N15_P_A_C12(T);
@@ -59,7 +59,7 @@ double lambda_ij (int i, int j, double T, char product) {
 
 /* beta-decay reactions aren't binary reactions and are
  * temperature-independent and so only require 1 argument */
-double lambda_ij (int i) {
+double lambda_ij_beta (int i) {
   double lambda_ij;
   if        (i == 2) {
     lambda_ij = lambda_N13_e_nu();

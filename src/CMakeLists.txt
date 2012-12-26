@@ -1,14 +1,17 @@
 SET (nuclear_network_SOURCES
-jacobian.cpp
-main.cpp
-ode_rhs.cpp
-rate_coeffs.cpp
+jacobian.c
+main.c
+ode_rhs.c
+rate_coeffs.c
 )
 
 FIND_PACKAGE(GSL)
 IF (GSL_FOUND)
-  SET (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${GSL_CXX_FLAGS})
+  SET (CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${GSL_C_FLAGS})
 ENDIF (GSL_FOUND)
 
 ADD_EXECUTABLE (nuclear_network ${nuclear_network_SOURCES})
-TARGET_LINK_LIBRARIES(nuclear_network ${GSL_LIBRARIES})
+TARGET_LINK_LIBRARIES(nuclear_network
+    gsl
+    gslcblas
+    )

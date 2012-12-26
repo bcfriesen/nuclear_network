@@ -14,6 +14,6 @@ double lambda_O15_e_nu ();
 double lambda_F17_e_nu ();
 double lambda_F18_e_nu ();
 
-double lambda_ij (int, int, double);
-double lambda_ij (int, int, double, char);
-double lambda_ij (int);
+double lambda_ijT (int, int, double);
+double lambda_ijT_avg (int, int, double, char);
+double lambda_ij_beta (int);

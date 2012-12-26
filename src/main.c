@@ -1,8 +1,11 @@
+#define MAIN_FILE
+
 #include <gsl/gsl_odeiv2.h>
 #include <gsl/gsl_errno.h>
-#include "ode_rhs.hpp"
-#include "rate_coeffs.hpp"
-#include "global.hpp"
+#include "ode_rhs.h"
+#include "rate_coeffs.h"
+#include "global.h"
+#include "jacobian.h"
 
 /* A simple CNO nuclear network solver. Thanks Dick Henry for making
  * these projects really open ended! I probably would not have learned
@@ -39,9 +42,7 @@ int main() {
   printf("%18s %12.4e\n", "MASS DENSITY:", rho);
   /* molar masses of each isotope. used to convert from mass fraction to
    * molar number abundance. units: g/mol */
-  const double molar_mass[nvar] = {4.002602, 12.0, 13.005738609, 13.00335483778,
-  14.00307400478, 15.003065617, 15.00010889823, 15.99491461956, 17.002095237,
-  16.999131703, 18.000937956, 17.999161001, 1.00794};
+  double molar_mass[nvar];
   /* initial time step (sec). This is just an initial guess. The
    * time-stepper will fix it when it starts integrating. */
   double h = 1.0e-8;
@@ -62,11 +63,27 @@ int main() {
    * no explicit time dependence in this system of ODEs so these will
    * all be zero */
   double dfdt[nvar];
+  // loops
+  unsigned int i;
+
+  molar_mass[0] = 4.002602;
+  molar_mass[1] = 12.0;
+  molar_mass[2] = 13.005738609;
+  molar_mass[3] = 13.00335483778;
+  molar_mass[4] = 14.00307400478;
+  molar_mass[5] = 15.003065617;
+  molar_mass[6] = 15.00010889823;
+  molar_mass[7] = 15.99491461956;
+  molar_mass[8] = 17.002095237;
+  molar_mass[9] = 16.999131703;
+  molar_mass[10] = 18.000937956;
+  molar_mass[11] = 17.999161001;
+  molar_mass[12] = 1.00794;
 
   /* set initial abundances. these are sort of arbitrary. I assume the
    * environment is the core of a young star, so 99% H1 (by mass) and
    * 1% C12 (we only need a tiny bit of C12 to start the reaction) */
-  for (unsigned int i = 0; i < nvar; ++i) {
+  for (i = 0; i < nvar; ++i) {
     /* the integrator doesn't like "true" zeros very much, so we use
      * tiny positive numbers instead. the stuff in parentheses
      * converts mass fraction to mol/cm^3 */
@@ -120,7 +137,7 @@ int main() {
      * small value. This helps the integrator move a little faster
      * because otherwise it tries to resolve changes at like 1.0e-58,
      * which is pointless. */
-    for (unsigned int i = 0; i < nvar; ++i) {
+    for (i = 0; i < nvar; ++i) {
       if (y[i] / (rho / molar_mass[i]) < 1.0e-20) y[i] = 0.0;
     }
     // print isotope mass fractions at each time step
