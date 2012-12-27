@@ -3,26 +3,23 @@
 #include "rate_coeffs.h"
 #include "global.h"
 
-/* Create sparse Jacobian matrix. For this CNO network the matrix is
- * 72% sparse.  Clearly a sparse solver would be in order here. I
- * tried SuperLU but it's impossible to use and can't do simple things
- * like adding two matrices together. Soooo, yeah, eff that. For small
- * jacobians (this only has 13^2 = 169 elements) the
- * performance/memory difference between sparse and full solvers is
- * immeasurably small. */
+/* Create sparse Jacobian matrix. For this CNO network the matrix is 72%
+ * sparse. A sparse solver would be in order here; I tried SuperLU but it's
+ * impossible to use and can't do simple things like adding two matrices
+ * together. For small jacobians (this only has 13^2 = 169 elements) the
+ * performance/memory difference between sparse and full solvers is small. */
 
 /* the arguments of this function are:
  * t -> time (independent variable)
- * y[] -> vector containing abundances of each isotope at time t
- * dfdy -> Jacobian matrix dfdt -> partial derivative of RHS of each
- *         ODE w.r.t. time
+ * y[] -> vector containing relative abundances (by number) of each isotope at
+ *        time t
+ * dfdy -> Jacobian matrix dfdt -> partial derivative of RHS of each ODE w.r.t.
+ *         time
  * params -> any arguments that the Jacobian matrix elements may need
- *           besides the independent variable (time). In this case
- *           the only auxiliary parameter is temperature */
-
+ * besides the independent variable (time). In this case the only auxiliary
+ * parameter is temperature */
 int jacobian (double t, const double y[], double *dfdy, double dfdt[],
               void *params) {
-
   // loops
   unsigned int i;
   // the only parameter is temperature
