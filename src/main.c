@@ -66,19 +66,19 @@ int main() {
   // loops
   unsigned int i;
 
-  molar_mass[0] = 4.002602;
-  molar_mass[1] = 12.0;
-  molar_mass[2] = 13.005738609;
-  molar_mass[3] = 13.00335483778;
-  molar_mass[4] = 14.00307400478;
-  molar_mass[5] = 15.003065617;
-  molar_mass[6] = 15.00010889823;
-  molar_mass[7] = 15.99491461956;
-  molar_mass[8] = 17.002095237;
-  molar_mass[9] = 16.999131703;
-  molar_mass[10] = 18.000937956;
-  molar_mass[11] = 17.999161001;
-  molar_mass[12] = 1.00794;
+  molar_mass[0] = 4.002602;        // He4
+  molar_mass[1] = 12.0;            // C12
+  molar_mass[2] = 13.005738609;    // N13
+  molar_mass[3] = 13.00335483778;  // C13
+  molar_mass[4] = 14.00307400478;  // N14
+  molar_mass[5] = 15.003065617;    // O15
+  molar_mass[6] = 15.00010889823;  // N15
+  molar_mass[7] = 15.99491461956;  // O16
+  molar_mass[8] = 17.002095237;    // F17
+  molar_mass[9] = 16.999131703;    // O17
+  molar_mass[10] = 18.000937956;   // F18
+  molar_mass[11] = 17.999161001;   // O18
+  molar_mass[12] = 1.00794;        // H1
 
   /* set initial abundances. these are sort of arbitrary. I assume the
    * environment is the core of a young star, so 99% H1 (by mass) and
