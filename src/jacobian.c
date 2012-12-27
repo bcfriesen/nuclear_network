@@ -24,14 +24,6 @@ int jacobian (double t, const double y[], double *dfdy, double dfdt[],
   unsigned int i;
   // the only parameter is temperature
   double T = *(double *)params;
-  /* a clever way to transform a regular 2-dimensional C array to a
-   * GSL matrix */
-  gsl_matrix_view dfdy_mat = gsl_matrix_view_array(dfdy, nvar, nvar);
-  gsl_matrix *jac = &dfdy_mat.matrix;
-
-  // 1-D C array to GSL vector
-  gsl_vector_const_view y_vec = gsl_vector_const_view_array(y, nvar);
-  const gsl_vector *Y_i = &y_vec.vector;
 
   /* for now I'll ignore the time dependence in the beta-decay rates,
    * in which case the whole RHS has no explicit time dependence and
@@ -40,103 +32,54 @@ int jacobian (double t, const double y[], double *dfdy, double dfdt[],
    * 2-body rates. */
   for (i = 0; i < nvar; ++i) { dfdt[i] = 0.0; }
 
-  /* the function gsl_matrix_set(mtx, i, j, val) just means "set the
-   * matrix element mtx[i,j] = val". GSL matrices (and vectors) are
-   * nice because they check for out-of-bounds calls, whereas regular
-   * C arrays don't.
-   *
-   * similarly, the function gsl_vector_get(vec, i) means "give me the
-   * value of vec[i]" */
-  gsl_matrix_set(jac,  1,  1, -lambda_ijT( 1, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  2,  1,  lambda_ijT( 1, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12,  1, -lambda_ijT( 2, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  2,  2, -lambda_ij_beta( 2));
-  gsl_matrix_set(jac,  3,  2,  lambda_ij_beta( 2));
-  gsl_matrix_set(jac,  3,  3, -lambda_ijT( 3, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  4,  3,  lambda_ijT( 3, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12,  3, -lambda_ijT( 3, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  4,  4, -lambda_ijT( 4, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  5,  4,  lambda_ijT( 4, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12,  4, -lambda_ijT( 4, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  5,  5, -lambda_ij_beta( 5));
-  gsl_matrix_set(jac,  6,  5,  lambda_ij_beta( 5));
-  gsl_matrix_set(jac,  0,  6,  lambda_ijT_avg( 6, 12, T, 'a')
-                             * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  1,  6,  lambda_ijT( 6, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  6,  6, -lambda_ijT_avg( 6, 12, T, 'a')
-                             * gsl_vector_get(Y_i, 12)
-                             - lambda_ijT_avg( 6, 12, T, 'g')
-			     * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  7,  6,  lambda_ijT( 6, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12,  6, -lambda_ijT_avg( 6, 12, T, 'a')
-                             * gsl_vector_get(Y_i, 12)
-                             - lambda_ijT_avg( 6, 12, T, 'g')
-			     * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  7,  7, -lambda_ijT( 7, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  8,  7,  lambda_ijT( 7, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12,  7, -lambda_ijT( 7, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  8,  8, -lambda_ij_beta( 8));
-  gsl_matrix_set(jac,  9,  8,  lambda_ij_beta( 8));
-  gsl_matrix_set(jac,  0,  9,  lambda_ijT_avg( 9, 12, T, 'a')
-                             * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  4,  9,  lambda_ijT( 9, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  9,  9, -lambda_ijT_avg( 9, 12, T, 'g')
-                             * gsl_vector_get(Y_i, 12)
-                             - lambda_ijT_avg( 9, 12, T, 'a')
-			     * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 10,  9,  lambda_ijT_avg( 9, 12, T, 'g')
-                             * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12,  9, -lambda_ijT_avg( 9, 12, T, 'a')
-                             * gsl_vector_get(Y_i, 12)
-                             - lambda_ijT_avg( 9, 12, T, 'g')
-			     * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 10, 10, -lambda_ij_beta(10));
-  gsl_matrix_set(jac, 11, 10,  lambda_ij_beta(10));
-  gsl_matrix_set(jac,  0, 11,  lambda_ijT(11, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  6, 11,  lambda_ijT(11, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 11, 11, -lambda_ijT(11, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac, 12, 11, -lambda_ijT(11, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  0, 12,  lambda_ijT_avg( 9, 12, T,'a')
-                             * gsl_vector_get(Y_i,  6)
-                             + lambda_ijT_avg( 9, 12, T,'a')
-                             * gsl_vector_get(Y_i,  9)
-                             + lambda_ijT(11, 12, T) * gsl_vector_get(Y_i, 11));
-  gsl_matrix_set(jac,  1, 12, -lambda_ijT( 1, 12, T) * gsl_vector_get(Y_i,  1)
-                             + lambda_ijT( 6, 12, T) * gsl_vector_get(Y_i,  6));
-  gsl_matrix_set(jac,  2, 12,  lambda_ijT( 1, 12, T) * gsl_vector_get(Y_i,  1));
-  gsl_matrix_set(jac,  3, 12, -lambda_ijT( 3, 12, T) * gsl_vector_get(Y_i,  3));
-  gsl_matrix_set(jac,  4, 12, -lambda_ijT( 4, 12, T) * gsl_vector_get(Y_i,  4)
-                             + lambda_ijT( 3, 12, T) * gsl_vector_get(Y_i,  3)
-                             + lambda_ijT( 9, 12, T) * gsl_vector_get(Y_i,  9));
-  gsl_matrix_set(jac,  5, 12,  lambda_ijT( 4, 12, T) * gsl_vector_get(Y_i,  4));
-  gsl_matrix_set(jac,  6, 12, -lambda_ijT_avg( 6, 12, T, 'a')
-                             * gsl_vector_get(Y_i,  6)
-                             - lambda_ijT_avg( 6, 12, T, 'g')
-			     * gsl_vector_get(Y_i,  6)
-                             + lambda_ijT(11, 12, T) * gsl_vector_get(Y_i, 12));
-  gsl_matrix_set(jac,  7, 12,  lambda_ijT( 6, 12, T) * gsl_vector_get(Y_i,  6)
-                             - lambda_ijT( 7, 12, T) * gsl_vector_get(Y_i,  7));
-  gsl_matrix_set(jac,  8, 12,  lambda_ijT( 7, 12, T) * gsl_vector_get(Y_i,  7));
-  gsl_matrix_set(jac,  9, 12, -lambda_ijT_avg( 9, 12, T, 'g')
-                             * gsl_vector_get(Y_i,  9)
-                             - lambda_ijT_avg( 9, 12, T, 'a')
-			     * gsl_vector_get(Y_i,  9));
-  gsl_matrix_set(jac, 10, 12,  lambda_ijT_avg( 9, 12, T, 'g')
-                             * gsl_vector_get(Y_i,  9));
-  gsl_matrix_set(jac, 11, 12, -lambda_ijT(11, 12, T)
-                             * gsl_vector_get(Y_i, 11));
-  gsl_matrix_set(jac, 12, 12, -lambda_ijT( 1, 12, T) * gsl_vector_get(Y_i,  1)
-                             - lambda_ijT( 3, 12, T) * gsl_vector_get(Y_i,  3)
-                             - lambda_ijT( 4, 12, T) * gsl_vector_get(Y_i,  4)
-		             - lambda_ijT_avg( 6, 12, T, 'a')
-			     * gsl_vector_get(Y_i,  6)
-	                     - lambda_ijT_avg( 6, 12, T, 'g')
-			     * gsl_vector_get(Y_i,  6)
-		             - lambda_ijT( 7, 12, T) * gsl_vector_get(Y_i,  7)
-	                     - lambda_ijT_avg( 9, 12, T, 'g')
-			     * gsl_vector_get(Y_i,  9)
-		             - lambda_ijT_avg( 9, 12, T, 'a')
-			     * gsl_vector_get(Y_i,  9)
-	                     - lambda_ijT( 11, 12, T) * gsl_vector_get(Y_i, 11));
+  /* GSL expects the Jacobian matrix to be stored in row-major order in a 1-D
+   * vector, so J[i][j] = dfdy[i*DIM + j]. Hence the weird notation here. */
+  dfdy[ 1*nvar +  1] = -lambda_ijT( 1, 12, T) * y[12];
+  dfdy[ 2*nvar +  1] =  lambda_ijT( 1, 12, T) * y[12];
+  dfdy[12*nvar +  1] = -lambda_ijT( 2, 12, T) * y[12];
+  dfdy[ 2*nvar +  2] = -lambda_ij_beta( 2);
+  dfdy[ 3*nvar +  2] =  lambda_ij_beta( 2);
+  dfdy[ 3*nvar +  3] = -lambda_ijT( 3, 12, T) * y[12];
+  dfdy[ 4*nvar +  3] =  lambda_ijT( 3, 12, T) * y[12];
+  dfdy[12*nvar +  3] = -lambda_ijT( 3, 12, T) * y[12];
+  dfdy[ 4*nvar +  4] = -lambda_ijT( 4, 12, T) * y[12];
+  dfdy[ 5*nvar +  4] =  lambda_ijT( 4, 12, T) * y[12];
+  dfdy[12*nvar +  4] = -lambda_ijT( 4, 12, T) * y[12];
+  dfdy[ 5*nvar +  5] = -lambda_ij_beta( 5);
+  dfdy[ 6*nvar +  5] =  lambda_ij_beta( 5);
+  dfdy[ 0*nvar +  6] =  lambda_ijT_avg( 6, 12, T, 'a') * y[12];
+  dfdy[ 1*nvar +  6] =  lambda_ijT( 6, 12, T) * y[12];
+  dfdy[ 6*nvar +  6] = -lambda_ijT_avg( 6, 12, T, 'a') * y[12] - lambda_ijT_avg( 6, 12, T, 'g') * y[12];
+  dfdy[ 7*nvar +  6] =  lambda_ijT( 6, 12, T) * y[12];
+  dfdy[12*nvar +  6] = -lambda_ijT_avg( 6, 12, T, 'a') * y[12] - lambda_ijT_avg( 6, 12, T, 'g') * y[12];
+  dfdy[ 7*nvar +  7] = -lambda_ijT( 7, 12, T) * y[12];
+  dfdy[ 8*nvar +  7] =  lambda_ijT( 7, 12, T) * y[12];
+  dfdy[12*nvar +  7] = -lambda_ijT( 7, 12, T) * y[12];
+  dfdy[ 8*nvar +  8] = -lambda_ij_beta( 8);
+  dfdy[ 9*nvar +  8] =  lambda_ij_beta( 8);
+  dfdy[ 0*nvar +  9] =  lambda_ijT_avg( 9, 12, T, 'a') * y[12];
+  dfdy[ 4*nvar +  9] =  lambda_ijT( 9, 12, T) * y[12];
+  dfdy[ 9*nvar +  9] = -lambda_ijT_avg( 9, 12, T, 'g') * y[12] - lambda_ijT_avg( 9, 12, T, 'a') * y[12];
+  dfdy[10*nvar +  9] =  lambda_ijT_avg( 9, 12, T, 'g') * y[12];
+  dfdy[12*nvar +  9] = -lambda_ijT_avg( 9, 12, T, 'a') * y[12] - lambda_ijT_avg( 9, 12, T, 'g') * y[12];
+  dfdy[10*nvar + 10] = -lambda_ij_beta(10);
+  dfdy[11*nvar + 10] =  lambda_ij_beta(10);
+  dfdy[ 0*nvar + 11] =  lambda_ijT(11, 12, T) * y[12];
+  dfdy[ 6*nvar + 11] =  lambda_ijT(11, 12, T) * y[12];
+  dfdy[11*nvar + 11] = -lambda_ijT(11, 12, T) * y[12];
+  dfdy[12*nvar + 11] = -lambda_ijT(11, 12, T) * y[12];
+  dfdy[ 0*nvar + 12] =  lambda_ijT_avg( 9, 12, T,'a') * y[6] + lambda_ijT_avg( 9, 12, T,'a') * y[9] + lambda_ijT(11, 12, T) * y[11];
+  dfdy[ 1*nvar + 12] = -lambda_ijT( 1, 12, T) * y[1] + lambda_ijT( 6, 12, T) * y[6];
+  dfdy[ 2*nvar + 12] =  lambda_ijT( 1, 12, T) * y[1];
+  dfdy[ 3*nvar + 12] = -lambda_ijT( 3, 12, T) * y[3];
+  dfdy[ 4*nvar + 12] = -lambda_ijT( 4, 12, T) * y[4] + lambda_ijT( 3, 12, T) * y[3] + lambda_ijT( 9, 12, T) * y[9];
+  dfdy[ 5*nvar + 12] =  lambda_ijT( 4, 12, T) * y[4];
+  dfdy[ 6*nvar + 12] = -lambda_ijT_avg( 6, 12, T, 'a') * y[6] - lambda_ijT_avg( 6, 12, T, 'g') * y[6] + lambda_ijT(11, 12, T) * y[12];
+  dfdy[ 7*nvar + 12] =  lambda_ijT( 6, 12, T) * y[6] - lambda_ijT( 7, 12, T) * y[7];
+  dfdy[ 8*nvar + 12] =  lambda_ijT( 7, 12, T) * y[7];
+  dfdy[ 9*nvar + 12] = -lambda_ijT_avg( 9, 12, T, 'g') * y[9] - lambda_ijT_avg( 9, 12, T, 'a') * y[9];
+  dfdy[10*nvar + 12] =  lambda_ijT_avg( 9, 12, T, 'g') * y[9];
+  dfdy[11*nvar + 12] = -lambda_ijT(11, 12, T) * y[11];
+  dfdy[12*nvar + 12] = -lambda_ijT( 1, 12, T) * y[1] - lambda_ijT( 3, 12, T) * y[3] - lambda_ijT( 4, 12, T) * y[4] - lambda_ijT_avg( 6, 12, T, 'a') * y[6] - lambda_ijT_avg( 6, 12, T, 'g') * y[6] - lambda_ijT( 7, 12, T) * y[7] - lambda_ijT_avg( 9, 12, T, 'g') * y[9] - lambda_ijT_avg( 9, 12, T, 'a') * y[9] - lambda_ijT( 11, 12, T) * y[11];
   return GSL_SUCCESS;
 }
