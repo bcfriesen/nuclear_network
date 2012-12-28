@@ -33,7 +33,9 @@
  * H1  = 12
  */
 
-int main() {
+int
+main ()
+{
   struct param params;
   // temperature (constant throughout). units: K
   params.T = 25.0e+06;
@@ -41,8 +43,8 @@ int main() {
   params.rho = 150.0;
   // number of isotopes to include in network
   params.n_iso = 13;
-  printf("%18s %12.4e\n", "TEMPERATURE:", params.T);
-  printf("%18s %12.4e\n", "MASS DENSITY:", params.rho);
+  printf ("%18s %12.4e\n", "TEMPERATURE:", params.T);
+  printf ("%18s %12.4e\n", "MASS DENSITY:", params.rho);
   /* molar masses of each isotope. used to convert from mass fraction to
    * molar number abundance. units: g/mol */
   double molar_mass[params.n_iso];
@@ -69,32 +71,33 @@ int main() {
   // loops
   unsigned int i;
 
-  molar_mass[0] = 4.002602;        // He4
-  molar_mass[1] = 12.0;            // C12
-  molar_mass[2] = 13.005738609;    // N13
-  molar_mass[3] = 13.00335483778;  // C13
-  molar_mass[4] = 14.00307400478;  // N14
-  molar_mass[5] = 15.003065617;    // O15
-  molar_mass[6] = 15.00010889823;  // N15
-  molar_mass[7] = 15.99491461956;  // O16
-  molar_mass[8] = 17.002095237;    // F17
-  molar_mass[9] = 16.999131703;    // O17
-  molar_mass[10] = 18.000937956;   // F18
-  molar_mass[11] = 17.999161001;   // O18
-  molar_mass[12] = 1.00794;        // H1
+  molar_mass[0] = 4.002602;	// He4
+  molar_mass[1] = 12.0;		// C12
+  molar_mass[2] = 13.005738609;	// N13
+  molar_mass[3] = 13.00335483778;	// C13
+  molar_mass[4] = 14.00307400478;	// N14
+  molar_mass[5] = 15.003065617;	// O15
+  molar_mass[6] = 15.00010889823;	// N15
+  molar_mass[7] = 15.99491461956;	// O16
+  molar_mass[8] = 17.002095237;	// F17
+  molar_mass[9] = 16.999131703;	// O17
+  molar_mass[10] = 18.000937956;	// F18
+  molar_mass[11] = 17.999161001;	// O18
+  molar_mass[12] = 1.00794;	// H1
 
   /* set initial abundances. these are sort of arbitrary. I assume the
    * environment is the core of a young star, so 99% H1 (by mass) and
    * 1% C12 (we only need a tiny bit of C12 to start the reaction) */
-  for (i = 0; i < params.n_iso; ++i) {
-    /* the integrator doesn't like "true" zeros very much, so we use
-     * tiny positive numbers instead. the stuff in parentheses
-     * converts mass fraction to mol/cm^3 */
-    y[i] = 1.0e-20 * (params.rho / molar_mass[i]);
-  }
+  for (i = 0; i < params.n_iso; ++i)
+    {
+      /* the integrator doesn't like "true" zeros very much, so we use
+       * tiny positive numbers instead. the stuff in parentheses
+       * converts mass fraction to mol/cm^3 */
+      y[i] = 1.0e-20 * (params.rho / molar_mass[i]);
+    }
   // set H1 and C12 by hand
   y[12] = 0.99 * (params.rho / molar_mass[12]);
-  y[ 1] = 0.01 * (params.rho / molar_mass[ 1]);
+  y[1] = 0.01 * (params.rho / molar_mass[1]);
 
   /* declare integration technology. All this junk is built in to the
    * GNU Scientific Library. I'm using a Bulirsch-Stoer integration
@@ -110,63 +113,68 @@ int main() {
    * Runge-Kutta method takes something like 50,000 time steps to
    * solve the equations, whereas B-S took only 29. */
   const gsl_odeiv2_step_type *step_type = gsl_odeiv2_step_bsimp;
-  gsl_odeiv2_step *step = gsl_odeiv2_step_alloc(step_type, params.n_iso);
+  gsl_odeiv2_step *step = gsl_odeiv2_step_alloc (step_type, params.n_iso);
   // set absolute and relative error tolerances
-  gsl_odeiv2_control *control = gsl_odeiv2_control_y_new(eps_abs, eps_rel);
+  gsl_odeiv2_control *control = gsl_odeiv2_control_y_new (eps_abs, eps_rel);
   // set number of ODEs to solve
-  gsl_odeiv2_evolve *evolve = gsl_odeiv2_evolve_alloc(params.n_iso);
+  gsl_odeiv2_evolve *evolve = gsl_odeiv2_evolve_alloc (params.n_iso);
   /* the integrator needs to know the RHS of the ODEs (ode_rhs), the
    * Jacobian matrix (jacobian), the number of ODEs it's going to
    * solve (n_iso), and any additional parameters (just temperature in
    * this case) */
-  gsl_odeiv2_system sys = {ode_rhs, jacobian, params.n_iso, &params};
+  gsl_odeiv2_system sys = { ode_rhs, jacobian, params.n_iso, &params };
 
   // pointer for writing output to a file
   FILE *fp;
-  fp = fopen("results.dat", "w");
+  fp = fopen ("results.dat", "w");
   // print column headers
-  fprintf(fp, "%15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s"
-         " %15s\n", "tnow", "he4", "c12", "n13", "c13", "n14", "o15",
-         "n15", "o16", "f17", "o17", "f18", "o18", "h1");
+  fprintf (fp,
+	   "%15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s"
+	   " %15s\n", "tnow", "he4", "c12", "n13", "c13", "n14", "o15", "n15",
+	   "o16", "f17", "o17", "f18", "o18", "h1");
   // continue loop until we reach t_stop
-  while (t_now < t_stop) {
-    /* integrate the equations at time t_now and take a step forward
-     * (t_now will be updated automatically) */
-    int status = gsl_odeiv2_evolve_apply(evolve, control, step, &sys,
-                 &t_now, t_stop, &h, y);
-    // quit if there's an error
-    if (status != GSL_SUCCESS) break;
-    /* Kill an isotope if its mass fraction drops below some really
-     * small value. This helps the integrator move a little faster
-     * because otherwise it tries to resolve changes at like 1.0e-58,
-     * which is pointless. */
-    for (i = 0; i < params.n_iso; ++i) {
-      if (y[i] / (params.rho / molar_mass[i]) < 1.0e-20) y[i] = 0.0;
+  while (t_now < t_stop)
+    {
+      /* integrate the equations at time t_now and take a step forward
+       * (t_now will be updated automatically) */
+      int status = gsl_odeiv2_evolve_apply (evolve, control, step, &sys,
+					    &t_now, t_stop, &h, y);
+      // quit if there's an error
+      if (status != GSL_SUCCESS)
+	break;
+      /* Kill an isotope if its mass fraction drops below some really
+       * small value. This helps the integrator move a little faster
+       * because otherwise it tries to resolve changes at like 1.0e-58,
+       * which is pointless. */
+      for (i = 0; i < params.n_iso; ++i)
+	{
+	  if (y[i] / (params.rho / molar_mass[i]) < 1.0e-20)
+	    y[i] = 0.0;
+	}
+      // print isotope mass fractions at each time step
+      fprintf (fp,
+	       "%15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e"
+	       " %15.4e %15.4e %15.4e %15.4e %15.4e\n", t_now,
+	       y[0] / (params.rho / molar_mass[0]),
+	       y[1] / (params.rho / molar_mass[1]),
+	       y[2] / (params.rho / molar_mass[2]),
+	       y[3] / (params.rho / molar_mass[3]),
+	       y[4] / (params.rho / molar_mass[4]),
+	       y[5] / (params.rho / molar_mass[5]),
+	       y[6] / (params.rho / molar_mass[6]),
+	       y[7] / (params.rho / molar_mass[7]),
+	       y[8] / (params.rho / molar_mass[8]),
+	       y[9] / (params.rho / molar_mass[9]),
+	       y[10] / (params.rho / molar_mass[10]),
+	       y[11] / (params.rho / molar_mass[11]),
+	       y[12] / (params.rho / molar_mass[12]));
     }
-    // print isotope mass fractions at each time step
-    fprintf(fp, "%15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e"
-           " %15.4e %15.4e %15.4e %15.4e %15.4e\n",
-	   t_now,
-	   y[0] / (params.rho / molar_mass[0]),
-	   y[1] / (params.rho / molar_mass[1]),
-	   y[2] / (params.rho / molar_mass[2]),
-	   y[3] / (params.rho / molar_mass[3]),
-	   y[4] / (params.rho / molar_mass[4]),
-	   y[5] / (params.rho / molar_mass[5]),
-	   y[6] / (params.rho / molar_mass[6]),
-	   y[7] / (params.rho / molar_mass[7]),
-	   y[8] / (params.rho / molar_mass[8]),
-	   y[9] / (params.rho / molar_mass[9]),
-	   y[10] / (params.rho / molar_mass[10]),
-	   y[11] / (params.rho / molar_mass[11]),
-	   y[12] / (params.rho / molar_mass[12]));
-  }
 
   // free pointers
-  gsl_odeiv2_step_free(step);
-  gsl_odeiv2_control_free(control);
-  gsl_odeiv2_evolve_free(evolve);
+  gsl_odeiv2_step_free (step);
+  gsl_odeiv2_control_free (control);
+  gsl_odeiv2_evolve_free (evolve);
   // close file
-  fclose(fp);
+  fclose (fp);
   return 0;
 }
