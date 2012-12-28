@@ -1,5 +1,6 @@
 #include <gsl/gsl_errno.h>
 #include "rate_coeffs.h"
+#include "param.h"
 
 /* Right-hand side of each ODE, i.e., the side with all the rates and
  * abundances multiplied together. See main.cpp for the isotope codes
@@ -12,10 +13,11 @@
  * params -> all parameters other than time (just temperature in
  *           this case) */
 
-int ode_rhs(double t, const double y[], double dydt[], void *params) {
+int ode_rhs(double t, const double y[], double dydt[], void *params_in) {
 
   // get the temperature
-  double T = *(double *)params;
+  struct param params = *(struct param *)params_in;
+  const double T = params.T;
 
   dydt[ 0] =  lambda_ijT_avg(6, 12, T, 'a') * y[6] * y[12] + lambda_ijT_avg(9, 12, T, 'a') * y[9] * y[12] + lambda_ijT(11, 12, T) * y[11] * y[12];
   dydt[ 1] = -lambda_ijT(1, 12, T) * y[1] * y[12] + lambda_ijT_avg(6, 12, T, 'a') * y[6] * y[12];
