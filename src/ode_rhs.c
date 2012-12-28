@@ -1,6 +1,5 @@
 #include <gsl/gsl_errno.h>
 #include "rate_coeffs.h"
-#include "global.h"
 
 /* Right-hand side of each ODE, i.e., the side with all the rates and
  * abundances multiplied together. See main.cpp for the isotope codes
