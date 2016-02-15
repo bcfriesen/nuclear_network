@@ -19,7 +19,7 @@
  * parameter is temperature */
 int
 jacobian (double t, const double y[], double *dfdy, double dfdt[],
-	  void *params_in)
+          void *params_in)
 {
   // loops
   unsigned int i;
@@ -56,11 +56,11 @@ jacobian (double t, const double y[], double *dfdy, double dfdt[],
   dfdy[1 * n_iso + 6] = lambda_ijT (6, 12, T) * y[12];
   dfdy[6 * n_iso + 6] =
     -lambda_ijT_avg (6, 12, T, 'a') * y[12] - lambda_ijT_avg (6, 12, T,
-							      'g') * y[12];
+                                                              'g') * y[12];
   dfdy[7 * n_iso + 6] = lambda_ijT (6, 12, T) * y[12];
   dfdy[12 * n_iso + 6] =
     -lambda_ijT_avg (6, 12, T, 'a') * y[12] - lambda_ijT_avg (6, 12, T,
-							      'g') * y[12];
+                                                              'g') * y[12];
   dfdy[7 * n_iso + 7] = -lambda_ijT (7, 12, T) * y[12];
   dfdy[8 * n_iso + 7] = lambda_ijT (7, 12, T) * y[12];
   dfdy[12 * n_iso + 7] = -lambda_ijT (7, 12, T) * y[12];
@@ -70,11 +70,11 @@ jacobian (double t, const double y[], double *dfdy, double dfdt[],
   dfdy[4 * n_iso + 9] = lambda_ijT (9, 12, T) * y[12];
   dfdy[9 * n_iso + 9] =
     -lambda_ijT_avg (9, 12, T, 'g') * y[12] - lambda_ijT_avg (9, 12, T,
-							      'a') * y[12];
+                                                              'a') * y[12];
   dfdy[10 * n_iso + 9] = lambda_ijT_avg (9, 12, T, 'g') * y[12];
   dfdy[12 * n_iso + 9] =
     -lambda_ijT_avg (9, 12, T, 'a') * y[12] - lambda_ijT_avg (9, 12, T,
-							      'g') * y[12];
+                                                              'g') * y[12];
   dfdy[10 * n_iso + 10] = -lambda_ij_beta (10);
   dfdy[11 * n_iso + 10] = lambda_ij_beta (10);
   dfdy[0 * n_iso + 11] = lambda_ijT (11, 12, T) * y[12];
@@ -83,7 +83,7 @@ jacobian (double t, const double y[], double *dfdy, double dfdt[],
   dfdy[12 * n_iso + 11] = -lambda_ijT (11, 12, T) * y[12];
   dfdy[0 * n_iso + 12] =
     lambda_ijT_avg (9, 12, T, 'a') * y[6] + lambda_ijT_avg (9, 12, T,
-							    'a') * y[9] +
+                                                            'a') * y[9] +
     lambda_ijT (11, 12, T) * y[11];
   dfdy[1 * n_iso + 12] =
     -lambda_ijT (1, 12, T) * y[1] + lambda_ijT (6, 12, T) * y[6];
@@ -91,30 +91,30 @@ jacobian (double t, const double y[], double *dfdy, double dfdt[],
   dfdy[3 * n_iso + 12] = -lambda_ijT (3, 12, T) * y[3];
   dfdy[4 * n_iso + 12] =
     -lambda_ijT (4, 12, T) * y[4] + lambda_ijT (3, 12,
-						T) * y[3] + lambda_ijT (9, 12,
-									T) *
+                                                T) * y[3] + lambda_ijT (9, 12,
+                                                                        T) *
     y[9];
   dfdy[5 * n_iso + 12] = lambda_ijT (4, 12, T) * y[4];
   dfdy[6 * n_iso + 12] =
     -lambda_ijT_avg (6, 12, T, 'a') * y[6] - lambda_ijT_avg (6, 12, T,
-							     'g') * y[6] +
+                                                             'g') * y[6] +
     lambda_ijT (11, 12, T) * y[12];
   dfdy[7 * n_iso + 12] =
     lambda_ijT (6, 12, T) * y[6] - lambda_ijT (7, 12, T) * y[7];
   dfdy[8 * n_iso + 12] = lambda_ijT (7, 12, T) * y[7];
   dfdy[9 * n_iso + 12] =
     -lambda_ijT_avg (9, 12, T, 'g') * y[9] - lambda_ijT_avg (9, 12, T,
-							     'a') * y[9];
+                                                             'a') * y[9];
   dfdy[10 * n_iso + 12] = lambda_ijT_avg (9, 12, T, 'g') * y[9];
   dfdy[11 * n_iso + 12] = -lambda_ijT (11, 12, T) * y[11];
   dfdy[12 * n_iso + 12] =
     -lambda_ijT (1, 12, T) * y[1] - lambda_ijT (3, 12,
-						T) * y[3] - lambda_ijT (4, 12,
-									T) *
+                                                T) * y[3] - lambda_ijT (4, 12,
+                                                                        T) *
     y[4] - lambda_ijT_avg (6, 12, T, 'a') * y[6] - lambda_ijT_avg (6, 12, T,
-								   'g') *
+                                                                   'g') *
     y[6] - lambda_ijT (7, 12, T) * y[7] - lambda_ijT_avg (9, 12, T,
-							  'g') * y[9] -
+                                                          'g') * y[9] -
     lambda_ijT_avg (9, 12, T, 'a') * y[9] - lambda_ijT (11, 12, T) * y[11];
   return GSL_SUCCESS;
 }
