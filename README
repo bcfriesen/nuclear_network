@@ -11,12 +11,11 @@ This code integrates the nuclear network ODEs using the implicit Bulirsch-Stoer
 method of Bader-Deuflhard, which is built into the GNU Scientific Library. (See
 "Numerical Recipes" for detailed descriptions of these algorithms.)
 
-I've not tested this code extensively except in Solar-ish environments. For
-reasonable results try a temperature of 15 MK and a density of 150 g/cm^3. The
-initial abundances should be mostly hydrogen, with at least a tiny bit of C12.
-(In an earlier version of this code I spent 2 full days trying to figure out
-why my abundances never changed over any amount of time. Turns out my initial
-C12 abundances was zero. Oops.) You should see the abundances change on
+I've not tested this code except in Solar-ish environments. For reasonable
+results try a temperature of 15 MK and a density of 150 g/cm^3. The initial
+abundances should be mostly hydrogen, but since C12 catalyzes the hydrogen
+burning sequence, you need a finite (albeit very small) amount of that too. If
+you use these ballpark numbers, You should see the abundances change on
 timescales of ~ Gyr. These are roughly the lifetimes of stars on the main
 sequence so it makes sense that the initial hydrogen depletes over this amount
 of time.
