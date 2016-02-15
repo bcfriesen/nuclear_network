@@ -12,8 +12,8 @@
  * t -> time (independent variable)
  * y[] -> vector containing relative abundances (by number) of each isotope at
  *        time t
- * dfdy -> Jacobian matrix dfdt -> partial derivative of RHS of each ODE w.r.t.
- *         time
+ * dfdy -> Jacobian matrix
+ * dfdt -> partial derivative of RHS of each ODE w.r.t. time
  * params -> any arguments that the Jacobian matrix elements may need
  * besides the independent variable (time). In this case the only auxiliary
  * parameter is temperature */
