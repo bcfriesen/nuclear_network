@@ -33,44 +33,74 @@
  * H1  = 12
  */
 
+const int n_iso = 13; // # of isotopes to evolve
+
+// # of grid points in each direction
+const int nx = 4;
+const int ny = 4;
+const int nz = 4;
+
+/* molar masses of each isotope. used to convert from mass fraction to molar
+ * number abundance. units: g/mol */
+double *molar_mass;
+
+unsigned int i, j;
+
+// state data stored in each grid cell
+struct grid_cell {
+    struct param params;
+    double *y; // molar (number) fraction of isotopes
+    double *dfdy; // Jacobian
+    /* time derivatives of the RHS. the integrator needs this. there is
+     * no explicit time dependence in this system of ODEs so these will
+     * all be zero */
+    double *dfdt;
+};
+
+
+void initial_conditions(struct grid_cell *cell) {
+    // temperature (constant throughout). units: K
+    cell->params.T = 25.0e+06;
+    // density (constant throughout). units: g/cm^3
+    cell->params.rho = 150.0;
+    // number of isotopes to include in network
+    cell->params.n_iso = 13;
+
+    /* set initial abundances. these are sort of arbitrary. I assume the
+     * environment is the core of a young star, so 99% H1 (by mass) and
+     * 1% C12 (we only need a tiny bit of C12 to start the reaction) */
+    for (j = 0; j < cell->params.n_iso; ++j)
+      {
+        /* the integrator doesn't like "true" zeros very much, so we use
+         * tiny positive numbers instead. the stuff in parentheses
+         * converts mass fraction to mol/cm^3 */
+        cell->y[j] = 1.0e-20 * (cell->params.rho / molar_mass[j]);
+      }
+    // set H1 and C12 by hand
+    cell->y[12] = 0.99 * (cell->params.rho / molar_mass[12]);
+    cell->y[1] = 0.01 * (cell->params.rho / molar_mass[1]);
+}
+
+
 int
 main ()
 {
-  struct param params;
-  // temperature (constant throughout). units: K
-  params.T = 25.0e+06;
-  // density (constant throughout). units: g/cm^3
-  params.rho = 150.0;
-  // number of isotopes to include in network
-  params.n_iso = 13;
-  printf ("%18s %12.4e\n", "TEMPERATURE:", params.T);
-  printf ("%18s %12.4e\n", "MASS DENSITY:", params.rho);
-  /* molar masses of each isotope. used to convert from mass fraction to
-   * molar number abundance. units: g/mol */
-  double molar_mass[params.n_iso];
+
   /* initial time step (sec). This is just an initial guess. The
    * time-stepper will fix it when it starts integrating. */
   double h = 1.0e-8;
   /* initial and final times. units: sec. the abundances for this problem
    * should evolve on stellar evolution timescales. for reference,
    * 1 Gyr ~ 3e16 sec */
-  double t_now = 0.0, t_stop = 1.0e+22;
+  double t_now = 0.0, t_stop = 1.0e+10;
   /* absolute and relative error requirements for the integrator. smaller means
    * better precision but more computation time */
   const double eps_abs = 1.0e-8, eps_rel = 0.0;
 
-  // number abundances of isotopes. units: mol/cm^3
-  double y[params.n_iso];
-  /* Jacobian matrix. the integrator needs this. fortunately it's
-   * analytic so calculating it is very fast */
-  double dfdy[params.n_iso][params.n_iso];
-  /* time derivatives of the RHS. the integrator needs this. there is
-   * no explicit time dependence in this system of ODEs so these will
-   * all be zero */
-  double dfdt[params.n_iso];
-  // loops
-  unsigned int i;
+  // total # of grid points
+  int tot_grid_pts = nx*ny*nz;
 
+  molar_mass = malloc(n_iso * sizeof(double));
   molar_mass[0] = 4.002602;	// He4
   molar_mass[1] = 12.0;		// C12
   molar_mass[2] = 13.005738609;	// N13
@@ -84,20 +114,6 @@ main ()
   molar_mass[10] = 18.000937956;	// F18
   molar_mass[11] = 17.999161001;	// O18
   molar_mass[12] = 1.00794;	// H1
-
-  /* set initial abundances. these are sort of arbitrary. I assume the
-   * environment is the core of a young star, so 99% H1 (by mass) and
-   * 1% C12 (we only need a tiny bit of C12 to start the reaction) */
-  for (i = 0; i < params.n_iso; ++i)
-    {
-      /* the integrator doesn't like "true" zeros very much, so we use
-       * tiny positive numbers instead. the stuff in parentheses
-       * converts mass fraction to mol/cm^3 */
-      y[i] = 1.0e-20 * (params.rho / molar_mass[i]);
-    }
-  // set H1 and C12 by hand
-  y[12] = 0.99 * (params.rho / molar_mass[12]);
-  y[1] = 0.01 * (params.rho / molar_mass[1]);
 
   /* declare integration technology. All this junk is built in to the
    * GNU Scientific Library. I'm using a Bulirsch-Stoer integration
@@ -113,68 +129,93 @@ main ()
    * Runge-Kutta method takes something like 50,000 time steps to
    * solve the equations, whereas B-S took only 29. */
   const gsl_odeiv2_step_type *step_type = gsl_odeiv2_step_bsimp;
-  gsl_odeiv2_step *step = gsl_odeiv2_step_alloc (step_type, params.n_iso);
+  gsl_odeiv2_step *step = gsl_odeiv2_step_alloc (step_type, n_iso);
   // set absolute and relative error tolerances
   gsl_odeiv2_control *control = gsl_odeiv2_control_y_new (eps_abs, eps_rel);
   // set number of ODEs to solve
-  gsl_odeiv2_evolve *evolve = gsl_odeiv2_evolve_alloc (params.n_iso);
+  gsl_odeiv2_evolve *evolve = gsl_odeiv2_evolve_alloc (n_iso);
   /* the integrator needs to know the RHS of the ODEs (ode_rhs), the
    * Jacobian matrix (jacobian), the number of ODEs it's going to
    * solve (n_iso), and any additional parameters (just temperature in
    * this case) */
-  gsl_odeiv2_system sys = { ode_rhs, jacobian, params.n_iso, &params };
 
-  // pointer for writing output to a file
-  FILE *fp;
-  fp = fopen ("results.dat", "w");
-  // print column headers
-  fprintf (fp,
-	   "%15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s"
-	   " %15s\n", "tnow", "he4", "c12", "n13", "c13", "n14", "o15", "n15",
-	   "o16", "f17", "o17", "f18", "o18", "h1");
-  // continue loop until we reach t_stop
+  unsigned int i, j;
+
+  // create grid
+  struct grid_cell grid[tot_grid_pts];
+  for (i = 0; i < tot_grid_pts; ++i) {
+    grid[i].dfdy = malloc(n_iso*n_iso * sizeof(double));
+    grid[i].dfdt = malloc(n_iso * sizeof(double));
+    grid[i].y = malloc(n_iso * sizeof(double));
+  }
+
+  // Set up initial conditions.
+  for (i = 0; i < tot_grid_pts; ++i) {
+    initial_conditions(&(grid[i]));
+  }
+
+  /* Duplicates of the current time step and step size. The ODE driver updates
+   * these in-place but we want to use the same values to be used on entry at
+   * every grid cell. If we don't keep "pristine" copies of the original time
+   * step and step size prior to each grid sweep, then the input value to the
+   * ODE driver at each cell will be the output from the integration in the
+   * previous cell, which we don't want. */
+  double t_now_tmp, h_tmp;
+
   while (t_now < t_stop)
-    {
-      /* integrate the equations at time t_now and take a step forward
-       * (t_now will be updated automatically) */
-      int status = gsl_odeiv2_evolve_apply (evolve, control, step, &sys,
-					    &t_now, t_stop, &h, y);
-      // quit if there's an error
+  {
+    printf("t = %e\n", t_now);
+
+    // Grid sweep.
+    for (i = 0; i < tot_grid_pts; ++i) {
+
+      gsl_odeiv2_system sys = { ode_rhs, jacobian, n_iso, &(grid[i].params) };
+
+      /* Integrate the equations at time t_now and take a step forward. The
+       * integrator will update the current time in-place, but we don't save that
+       * value until after the last grid point is done. */
+
+      t_now_tmp = t_now;
+      h_tmp = h;
+      int status = gsl_odeiv2_evolve_apply(evolve, control, step, &sys,
+                      &t_now_tmp, t_stop, &h_tmp, grid[i].y);
       if (status != GSL_SUCCESS)
-	break;
+        break;
+
       /* Kill an isotope if its mass fraction drops below some really
        * small value. This helps the integrator move a little faster
        * because otherwise it tries to resolve changes at like 1.0e-58,
-       * which is pointless. */
-      for (i = 0; i < params.n_iso; ++i)
-	{
-	  if (y[i] / (params.rho / molar_mass[i]) < 1.0e-20)
-	    y[i] = 0.0;
-	}
-      // print isotope mass fractions at each time step
-      fprintf (fp,
-	       "%15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e %15.4e"
-	       " %15.4e %15.4e %15.4e %15.4e %15.4e\n", t_now,
-	       y[0] / (params.rho / molar_mass[0]),
-	       y[1] / (params.rho / molar_mass[1]),
-	       y[2] / (params.rho / molar_mass[2]),
-	       y[3] / (params.rho / molar_mass[3]),
-	       y[4] / (params.rho / molar_mass[4]),
-	       y[5] / (params.rho / molar_mass[5]),
-	       y[6] / (params.rho / molar_mass[6]),
-	       y[7] / (params.rho / molar_mass[7]),
-	       y[8] / (params.rho / molar_mass[8]),
-	       y[9] / (params.rho / molar_mass[9]),
-	       y[10] / (params.rho / molar_mass[10]),
-	       y[11] / (params.rho / molar_mass[11]),
-	       y[12] / (params.rho / molar_mass[12]));
+       * which grids the whole process to a halt. */
+      for (j = 0; j < grid[i].params.n_iso; ++j)
+      {
+        if (grid[i].y[j] / (grid[i].params.rho / molar_mass[j]) < 1.0e-20) {
+          grid[i].y[j] = 0.0;
+        }
+      }
+
     }
 
-  // free pointers
+    /* Now that the grid sweep is done, save the last value of the new current
+     * time and time step. The results from every cell in this example should be
+     * bitwise identical so we can just save the very last one. */
+    t_now = t_now_tmp;
+    h = h_tmp;
+
+  }
+
+  // free GSL memory
   gsl_odeiv2_step_free (step);
   gsl_odeiv2_control_free (control);
   gsl_odeiv2_evolve_free (evolve);
-  // close file
-  fclose (fp);
+
+  // free grid data
+  for (i = 0; i < tot_grid_pts; ++i) {
+    free(grid[i].y);
+    free(grid[i].dfdy);
+    free(grid[i].dfdt);
+  }
+
+  free(molar_mass);
+
   return 0;
 }
