@@ -1,33 +1,25 @@
-This program calculates the time-dependent molar abundances Y_i of the
-13 isotopes involved in the CNO cycle. It's a work in progress, and
-I'm still learning so some of it may be wrong (the beta-decay stuff in
-particular)...
+This code calculates the time-dependent molar abundances Y_i of the 13 isotopes
+involved in the CNO cycle. It's a work in progress, and I'm still learning so
+some of it may be wrong (the beta-decay stuff in particular)...
 
-Nuclear network ODEs are notoriously stiff, meaning different isotopes
-change on enormously different time scales. Resolving these changes
-without integrating over stupidly small intervals is
-challenging. Fortunately some very smart numerical analysts have
-solved these sorts of problems for us.
+Nuclear network ODEs are stiff because different isotopes react on enormously
+different time scales. Resolving these changes without integrating over
+absurdly small time steps is challenging. Fortunately some very smart applied
+mathematicians have solved these sorts of problems for us.
 
-This program integrates the network ODEs using the implicit
-Bulirsch-Stoer method of Bader-Deuflhard, which is built into the GNU
-Scientific Library. (See "Numerical Recipes" for detailed descriptions
-of these algorithms.)  The NR collection also comes with a
-Bulirsch-Stoer algorithm but the NR license sucks and one cannot
-legally publish the source code or any modification thereof, even
-though uploaded copies of the entire NR source (both Fortran and C
-versions) are laughably easy to find.
+This code integrates the nuclear network ODEs using the implicit Bulirsch-Stoer
+method of Bader-Deuflhard, which is built into the GNU Scientific Library. (See
+"Numerical Recipes" for detailed descriptions of these algorithms.)
 
-I've not tested this code extensively except in Solar-ish
-environments. For reasonable results try a temperature of 15 MK and a
-density of 150 g/cm^3. The initial abundances should be mostly
-hydrogen, with at least a tiny bit of C12. (In an earlier version of
-this code I spent 2 full days trying to figure out why my abundances
-never changed over any amount of time. Turns out my initial C12
-abundances was 0. Derp.) You should see the abundances change on
-timescales of ~ Gyr. These are roughly the lifetimes of stars on the
-main sequence so it makes sense that the initial hydrogen depletes
-over this amount of time.
+I've not tested this code extensively except in Solar-ish environments. For
+reasonable results try a temperature of 15 MK and a density of 150 g/cm^3. The
+initial abundances should be mostly hydrogen, with at least a tiny bit of C12.
+(In an earlier version of this code I spent 2 full days trying to figure out
+why my abundances never changed over any amount of time. Turns out my initial
+C12 abundances was zero. Oops.) You should see the abundances change on
+timescales of ~ Gyr. These are roughly the lifetimes of stars on the main
+sequence so it makes sense that the initial hydrogen depletes over this amount
+of time.
 
 --------------------------------------------------------------------------------
 
